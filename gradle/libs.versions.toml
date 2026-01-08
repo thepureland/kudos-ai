@@ -1,0 +1,55 @@
+# Version catalog is a central place for you to declare and version dependencies
+# https://docs.gradle.org/current/userguide/platforms.html#sub:version-catalog
+# https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
+
+[versions]
+kudos = "1.0.0-SNAPSHOT"
+kotlin = "2.3.0"
+kotlinxDatetime = "0.7.1"
+kotlinxSerializationJSON = "1.10.0-RC"
+kotlinxCoroutines = "1.10.2"
+spring-boot = "4.0.1"
+spring-cloud = "2025.1.0"
+spring-ai = "2.0.0-M1"
+postgres = "42.7.8"
+github-ben-manes-plugin = "0.53.0"
+
+# kudos-ai-ability
+embabel-agent = "0.3.1"
+
+
+[libraries]
+kotlinGradlePlugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
+kotlinxDatetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
+kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJSON" }
+kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
+
+# bom
+spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
+spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
+spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "spring-ai" }
+
+kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
+kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+
+kudos-context = { module = "io.kudos:kudos-context", version.ref = "kudos" }
+kudos-test-common = { module = "io.kudos:kudos-test-common", version.ref = "kudos" }
+kudos-test-container = { module = "io.kudos:kudos-test-container", version.ref = "kudos" }
+
+# kudos-ability
+spring-ai-vector-store = { module = "org.springframework.ai:spring-ai-vector-store"}
+spring-ai-starter-vector-store-pgvector = { module = "org.springframework.ai:spring-ai-starter-vector-store-pgvector" }
+spring-ai-starter-vector-store-milvus = { module = "org.springframework.ai:spring-ai-starter-vector-store-milvus" }
+spring-ai-starter-model-ollama = { module = "org.springframework.ai:spring-ai-starter-model-ollama" }
+postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres"}
+ai-agent-starter-embabel = { module = "com.embabel.agent:embabel-agent-starter", version.ref = "embabel-agent"}
+ai-agent-test-embabel = { module = "com.embabel.agent:embabel-agent-test", version.ref = "embabel-agent"}
+
+# Libraries can be bundled together for easier import
+[bundles]
+kotlinxEcosystem = ["kotlinxDatetime", "kotlinxSerialization", "kotlinxCoroutines"]
+
+
+[plugins]
+kotlinPluginSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+github-ben-manes = { id = "com.github.ben-manes.versions", version.ref = "github-ben-manes-plugin" }
