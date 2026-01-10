@@ -35,6 +35,7 @@
             <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model/kudos-ai-ability-model-image" />
             <option value="$PROJECT_DIR$/kudos-ai-test" />
             <option value="$PROJECT_DIR$/kudos-ai-test/kudos-ai-test-container" />
+            <option value="$PROJECT_DIR$/kudos-ai-tools" />
           </set>
         </option>
       </GradleProjectSettings>

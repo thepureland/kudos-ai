@@ -5,21 +5,20 @@ import io.kudos.ai.test.container.containers.ollama.OllamaMiniTestContainer
 import io.kudos.base.logger.LogFactory
 import io.kudos.test.common.init.EnableKudosTest
 import jakarta.annotation.Resource
+import org.junit.jupiter.api.Timeout
+import org.junit.jupiter.api.extension.RegisterExtension
+import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
+import org.opentest4j.TestAbortedException
 import org.springframework.ai.chat.messages.SystemMessage
 import org.springframework.ai.chat.messages.UserMessage
 import org.springframework.ai.chat.model.ChatModel
 import org.springframework.ai.chat.model.ChatResponse
 import org.springframework.ai.chat.prompt.Prompt
-import org.junit.jupiter.api.Timeout
-import org.junit.jupiter.api.extension.RegisterExtension
-import org.junit.jupiter.api.extension.ExtensionContext
-import org.junit.jupiter.api.extension.TestExecutionExceptionHandler
-import org.opentest4j.TestAbortedException
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import org.testcontainers.junit.jupiter.EnabledIfDockerAvailable
-import java.util.concurrent.TimeoutException
 import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertNotNull
@@ -35,7 +34,7 @@ import kotlin.test.assertTrue
  * - 响应内容验证
  *
  * @author K
- * @author Cursor
+ * @author AI:Cursor
  * @since 1.0.0
  */
 @EnableKudosTest

@@ -29,6 +29,9 @@ rootProject.name = "kudos-ai"
 // test
 include("kudos-ai-test:kudos-ai-test-container")
 
+// tools
+include("kudos-ai-tools")
+
 // data
 include("kudos-ai-ability:kudos-ai-ability-data:kudos-ai-ability-data-vdb:kudos-ai-ability-data-vdb-common")
 include("kudos-ai-ability:kudos-ai-ability-data:kudos-ai-ability-data-vdb:kudos-ai-ability-data-vdb-pgvector")
