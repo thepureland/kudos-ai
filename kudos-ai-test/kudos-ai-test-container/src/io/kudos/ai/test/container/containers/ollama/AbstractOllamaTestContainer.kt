@@ -4,6 +4,7 @@ import com.github.dockerjava.api.model.Container
 import io.kudos.test.container.kit.TestContainerKit
 import io.kudos.test.container.kit.bindingPort
 import org.springframework.test.context.DynamicPropertyRegistry
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 import java.nio.file.Files
@@ -29,9 +30,11 @@ abstract class AbstractOllamaTestContainer(
         val hostDir: Path = Path.of(System.getProperty("user.home"), ".cache", "ollama-tc")
         Files.createDirectories(hostDir)
 
+        // 使用绑定挂载（bind mount）以支持高效的数据持久化
         withFileSystemBind(
             hostDir.toAbsolutePath().toString(),
-            "/root/.ollama"
+            "/root/.ollama",
+            BindMode.READ_WRITE
         )
 
         withExposedPorts(containerPort)
@@ -52,9 +55,11 @@ abstract class AbstractOllamaTestContainer(
     /**
      * 拉取模型
      */
-    private fun pullModelIfAbsent(model: String) {
+    private fun pullModelIfAbsent(model: String?, container: Container) {
+        if (model.isNullOrBlank()) { return }
+
         // 1) 先检查是否已存在
-        val list = container.execInContainer("ollama", "list")
+        val list = TestContainerKit.execInContainer(container, "ollama", "list")
         check(list.exitCode == 0) { "ollama list failed: ${list.stderr}\n${list.stdout}" }
         
         // 由于ollama list返回的model名字可能没有tag（如 'llama2' 而不是 'llama2:latest'），应同时支持tag和无tag的情况
@@ -101,7 +106,7 @@ abstract class AbstractOllamaTestContainer(
         // 2) 不存在才 pull
         println("Start pulling model: $model ...")
         val time = System.currentTimeMillis()
-        val r = container.execInContainer("ollama", "pull", model)
+        val r = TestContainerKit.execInContainer(container, "ollama", "pull", model)
         check(r.exitCode == 0) { "ollama pull $model failed: ${r.stderr}\n${r.stdout}" }
         println("Finish pulling model: $model in ${System.currentTimeMillis() - time}ms")
     }
@@ -120,10 +125,10 @@ abstract class AbstractOllamaTestContainer(
      * @param model ollama支持的模型的名称
      * @return 运行中的容器对象
      */
-    fun startIfNeeded(registry: DynamicPropertyRegistry?, model: String): Container {
+    fun startIfNeeded(registry: DynamicPropertyRegistry?, model: String?): Container {
         synchronized(this) {
             val runningContainer = TestContainerKit.startContainerIfNeeded(label, container)
-            pullModelIfAbsent(model)
+            pullModelIfAbsent(model, runningContainer)
             if (registry != null) {
                 registerProperties(registry, runningContainer, model)
             }
@@ -134,10 +139,10 @@ abstract class AbstractOllamaTestContainer(
     protected fun registerProperties(
         registry: DynamicPropertyRegistry,
         runningContainer: Container,
-        model: String
+        model: String?
     ) {
         registry.add("spring.ai.model.embedding") { "ollama" }
-        registry.add("spring.ai.ollama.embedding.options.model") { model }
+        model?.let { registry.add("spring.ai.ollama.embedding.options.model") { it } }
         registry.add("spring.ai.ollama.base-url") { "http://127.0.0.1:$port" }
     }
 
