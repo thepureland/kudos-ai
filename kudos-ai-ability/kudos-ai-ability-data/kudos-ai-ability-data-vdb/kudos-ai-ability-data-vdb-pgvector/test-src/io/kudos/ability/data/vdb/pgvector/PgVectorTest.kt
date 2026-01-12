@@ -1,9 +1,9 @@
 package io.kudos.ability.data.vdb.pgvector
 
-import io.kudos.test.common.init.EnableKudosTest
+import io.kudos.ai.ability.model.embedding.support.enums.impl.EmbeddingModelEnum
 import io.kudos.ai.test.container.containers.PgVectorTestContainer
-import io.kudos.ai.test.container.containers.ollama.OllamaEmbeddingModelEnum
 import io.kudos.ai.test.container.containers.ollama.OllamaMiniTestContainer
+import io.kudos.test.common.init.EnableKudosTest
 import jakarta.annotation.Resource
 import org.springframework.ai.document.Document
 import org.springframework.ai.embedding.EmbeddingModel
@@ -484,7 +484,7 @@ class PgVectorTest {
             elementType = String::class.java,
             args = arrayOf(qLit)
         )
-        return rows.filterNotNull().toSet()
+        return rows.toSet()
     }
 
     private fun queryApproxIdsWithIvfflat(table: TableRef, qLit: String, topK: Int, probes: Int): Set<String> {
@@ -636,9 +636,9 @@ class PgVectorTest {
         @JvmStatic
         @DynamicPropertySource
         fun registerProps(registry: DynamicPropertyRegistry) {
-            val model = OllamaEmbeddingModelEnum.ALL_MINILM
+            val model = EmbeddingModelEnum.ALL_MINILM
             registry.add("spring.ai.vectorstore.pgvector.dimensions") { model.dimension }
-            OllamaMiniTestContainer.startIfNeeded(registry, model)
+            OllamaMiniTestContainer.startIfNeeded(registry, model.modelName)
             PgVectorTestContainer.startIfNeeded(registry)
         }
     }
