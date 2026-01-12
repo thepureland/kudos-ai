@@ -1,5 +1,6 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
+val kudos_bom = libs.kudos.bom
 val spring_boot_bom = libs.spring.boot.bom
 val spring_cloud_bom = libs.spring.cloud.bom
 val spring_ai_bom = libs.spring.ai.bom
@@ -26,6 +27,7 @@ subprojects {
     layout.buildDirectory = File(rootProject.projectDir, "build/${project.name}")
 
     dependencies {
+        add("implementation", platform(kudos_bom))
         add("implementation", platform(spring_boot_bom))
         add("implementation", platform(spring_cloud_bom))
         add("implementation", platform(spring_ai_bom))

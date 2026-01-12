@@ -25,6 +25,7 @@ kotlinxSerialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-j
 kotlin-test-junit5 = { module = "org.jetbrains.kotlin:kotlin-test-junit5", version.ref = "kotlin" }
 
 # bom
+kudos-bom = { module = "io.kudos:kudos-dependencies", version.ref = "kudos" }
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
 spring-cloud-bom = { module = "org.springframework.cloud:spring-cloud-dependencies", version.ref = "spring-cloud" }
 spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref = "spring-ai" }
@@ -32,9 +33,9 @@ spring-ai-bom = { module = "org.springframework.ai:spring-ai-bom", version.ref =
 kotlinReflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
 kotlinxCoroutines = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
 
-kudos-context = { module = "io.kudos:kudos-context", version.ref = "kudos" }
-kudos-test-common = { module = "io.kudos:kudos-test-common", version.ref = "kudos" }
-kudos-test-container = { module = "io.kudos:kudos-test-container", version.ref = "kudos" }
+kudos-context = { module = "io.kudos:kudos-context" }
+kudos-test-common = { module = "io.kudos:kudos-test-common" }
+kudos-test-container = { module = "io.kudos:kudos-test-container" }
 
 # kudos-ability
 spring-ai-vector-store = { module = "org.springframework.ai:spring-ai-vector-store"}
