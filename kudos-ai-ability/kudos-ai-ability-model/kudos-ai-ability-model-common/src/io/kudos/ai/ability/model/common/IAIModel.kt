@@ -7,7 +7,7 @@ package io.kudos.ai.ability.model.common
  * @author K
  * @since 1.0.0
  */
-interface IAIModelMetaData {
+interface IAIModel {
 
     /**
      * 模型名称

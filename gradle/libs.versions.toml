@@ -45,6 +45,7 @@ spring-ai-starter-model-ollama = { module = "org.springframework.ai:spring-ai-st
 spring-ai-ollama = { module = "org.springframework.ai:spring-ai-ollama" }
 spring-ai-model = { module = "org.springframework.ai:spring-ai-model"}
 spring-ai-client-chat = { module = "org.springframework.ai:spring-ai-client-chat"}
+spring-ai-starter-openai = { module = "org.springframework.ai:spring-ai-starter-model-openai" }
 postgresql = { module = "org.postgresql:postgresql", version.ref = "postgres"}
 ai-agent-starter-embabel = { module = "com.embabel.agent:embabel-agent-starter", version.ref = "embabel-agent"}
 ai-agent-test-embabel = { module = "com.embabel.agent:embabel-agent-test", version.ref = "embabel-agent"}

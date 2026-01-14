@@ -19,6 +19,8 @@ tasks.withType<Test>().configureEach {
     useJUnitPlatform()
 
     // Log information about all test results, not only the failed ones.
+    // 注意：根项目的 build.gradle.kts 中已经有更详细的测试日志配置
+    // 这里只保留基本配置，避免覆盖根项目的配置
     testLogging {
         events(
             TestLogEvent.FAILED,

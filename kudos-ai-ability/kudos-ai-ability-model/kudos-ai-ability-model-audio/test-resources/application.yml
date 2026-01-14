@@ -1,0 +1,17 @@
+spring:
+  ai:
+    openai:
+      base-url: http://127.0.0.1:28001    # speaches 容器地址
+      api-key: dummy
+      audio:
+        speech:
+          options:
+            model: speaches-ai/Kokoro-82M-v1.0-ONNX
+
+logging:
+  level:
+    io.kudos: INFO
+    org.springframework.ai: DEBUG
+  pattern:
+    # 实时输出日志，不使用缓冲
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"

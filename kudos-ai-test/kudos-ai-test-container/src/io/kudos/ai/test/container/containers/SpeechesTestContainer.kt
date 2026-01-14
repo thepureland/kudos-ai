@@ -4,9 +4,20 @@ import com.github.dockerjava.api.model.Container
 import io.kudos.test.container.kit.TestContainerKit
 import io.kudos.test.container.kit.bindingPort
 import org.springframework.test.context.DynamicPropertyRegistry
+import org.testcontainers.containers.BindMode
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+import java.net.http.HttpClient
+import java.net.http.HttpRequest
+import java.net.http.HttpResponse
+import java.net.URI
+import java.nio.file.Files
+import java.nio.file.Path
 import java.time.Duration
+import kotlin.io.path.exists
+import kotlin.io.path.listDirectoryEntries
 
 /**
  * speeches-ai测试容器
@@ -16,7 +27,16 @@ import java.time.Duration
  *
  * 模型/引擎：
  * STT：faster-whisper（Whisper 的高性能实现，通常更快、更省内存，还支持 8-bit 量化）。
+ *   可用模型示例：
+ *   - Systran/faster-whisper-tiny (39M参数)
+ *   - Systran/faster-whisper-base (74M参数)
+ *   - Systran/faster-whisper-small (244M参数)
+ *   - Systran/faster-whisper-medium (769M参数)
+ *   - Systran/faster-whisper-large-v3 (1.55B参数，默认)
  * TTS：Piper 和 Kokoro。
+ *   可用模型示例：
+ *   - speaches-ai/Kokoro-82M-v1.0-ONNX (默认)
+ *   - rhasspy/piper-voices (Piper 模型)
  *
  * @author K
  * @author AI:Cursor
@@ -33,6 +53,19 @@ object SpeechesTestContainer {
     const val LABEL = "Speeches"
 
     val container = GenericContainer(IMAGE_NAME).apply {
+        // 创建宿主机目录用于持久化模型
+        // speaches-ai 将模型存储在 /home/ubuntu/.cache/huggingface/hub 目录
+        val hostModelDir: Path = Path.of(System.getProperty("user.home"), ".cache", "speaches-tc", "huggingface", "hub")
+        Files.createDirectories(hostModelDir)
+        
+        // 使用绑定挂载（bind mount）以支持高效的数据持久化
+        // 注意：speaches-ai 容器默认使用 /home/ubuntu/.cache/huggingface/hub
+        withFileSystemBind(
+            hostModelDir.toAbsolutePath().toString(),
+            "/home/ubuntu/.cache/huggingface/hub",
+            BindMode.READ_WRITE
+        )
+        
         withExposedPorts(CONTAINER_PORT)
         bindingPort(Pair(PORT, CONTAINER_PORT))
         
@@ -67,6 +100,141 @@ object SpeechesTestContainer {
     }
 
     /**
+     * 检查模型是否在 speaches 注册表中支持
+     *
+     * @param modelId 模型 ID（如 "Systran/faster-whisper-base"）
+     * @param baseUrl speaches API 的基础 URL
+     * @param httpClient HTTP 客户端
+     * @return 如果模型在注册表中支持则返回 true，否则返回 false
+     */
+    private fun isModelSupportedInRegistry(modelId: String, baseUrl: String, httpClient: HttpClient): Boolean {
+        try {
+            // 查询 speaches 的模型注册表
+            val registryRequest = HttpRequest.newBuilder()
+                .uri(URI.create("$baseUrl/v1/registry"))
+                .GET()
+                .timeout(Duration.ofSeconds(30))
+                .build()
+            
+            val registryResponse = httpClient.send(registryRequest, HttpResponse.BodyHandlers.ofString())
+            
+            if (registryResponse.statusCode() == 200) {
+                val responseBody = registryResponse.body()
+                
+                // 解析注册表响应（可能是 JSON 格式）
+                // 简单检查：响应中是否包含模型 ID
+                // 注意：这里使用简单的字符串匹配，如果注册表返回的是结构化 JSON，
+                // 可以考虑使用 JSON 解析库进行更精确的匹配
+                return responseBody.contains(modelId)
+            } else {
+                println("WARN: Failed to query registry, status code: ${registryResponse.statusCode()}")
+                // 如果查询注册表失败，返回 false 以进行更严格的检查
+                return false
+            }
+        } catch (e: Exception) {
+            println("WARN: Error checking model registry: ${e.message}")
+            // 如果查询注册表出错，返回 false 以进行更严格的检查
+            return false
+        }
+    }
+
+    /**
+     * 下载模型（如果不存在）
+     *
+     * @param modelId 模型 ID（如 "Systran/faster-whisper-base"）
+     * @param runningContainer 运行中的容器对象
+     */
+    private fun downloadModelIfAbsent(modelId: String, runningContainer: Container) {
+        // 首先检查宿主机目录中是否已有模型文件
+        val hostModelDir: Path = Path.of(System.getProperty("user.home"), ".cache", "speaches-tc", "huggingface", "hub")
+        if (hostModelDir.exists()) {
+            // Hugging Face 模型通常存储在 models--{org}--{name} 格式的目录中
+            // 例如：Systran/faster-whisper-base -> models--Systran--faster-whisper-base
+            val modelDirName = modelId.replace("/", "--")
+            val modelPath = hostModelDir.resolve("models--$modelDirName")
+            
+            if (modelPath.exists()) {
+                // 检查目录中是否有文件（模型文件通常包含多个文件）
+                val files = try {
+                    modelPath.listDirectoryEntries()
+                } catch (e: Exception) {
+                    emptyList()
+                }
+                
+                if (files.isNotEmpty()) {
+                    println("DEBUG: Model found in host directory: $modelPath (${files.size} files)")
+                    println("Model already exists in persistent storage: $modelId, skip downloading.")
+                    return
+                }
+            }
+        }
+        
+        val host = runningContainer.ports.first().ip
+        val port = runningContainer.ports.first().publicPort
+        val baseUrl = "http://$host:$port"
+        
+        val httpClient = HttpClient.newBuilder()
+            .connectTimeout(Duration.ofSeconds(10))
+            .build()
+        
+        // 设置较长的超时时间，因为模型下载可能需要较长时间
+        val requestTimeout = Duration.ofMinutes(10)
+        
+        try {
+            // 0) 首先检查模型是否在 speaches 注册表中支持
+            if (!isModelSupportedInRegistry(modelId, baseUrl, httpClient)) {
+                throw IllegalArgumentException(
+                    "Model '$modelId' is not supported in speaches registry. " +
+                    "Please check available models at $baseUrl/v1/registry"
+                )
+            }
+            
+            // 1) 通过 API 检查模型是否已存在
+            val listRequest = HttpRequest.newBuilder()
+                .uri(URI.create("$baseUrl/v1/models"))
+                .GET()
+                .timeout(requestTimeout)
+                .build()
+            
+            val listResponse = httpClient.send(listRequest, HttpResponse.BodyHandlers.ofString())
+            
+            if (listResponse.statusCode() == 200) {
+                val responseBody = listResponse.body()
+                
+                // 简单检查：响应中是否包含模型 ID
+                // speaches API 可能返回 JSON 格式或简单列表，直接字符串匹配即可
+                if (responseBody.contains(modelId)) {
+                    println("Model already exists: $modelId, skip downloading.")
+                    return
+                }
+            }
+            
+            // 2) 不存在则下载
+            println("Start downloading model: $modelId ...")
+            val time = System.currentTimeMillis()
+            
+            // 构建下载 URL
+            // 注意：modelId 可能包含 '/'，这里需要 URL 编码成单个 path segment，
+            // 否则路由可能会把它当成多段路径导致下载失败。
+            val encodedModelId = URLEncoder.encode(modelId, StandardCharsets.UTF_8)
+            val downloadRequest = HttpRequest.newBuilder()
+                .uri(URI.create("$baseUrl/v1/models/$encodedModelId"))
+                .POST(HttpRequest.BodyPublishers.noBody())
+                .timeout(requestTimeout)
+                .build()
+            
+            val downloadResponse = httpClient.send(downloadRequest, HttpResponse.BodyHandlers.ofString())
+
+            check(downloadResponse.statusCode() in 200..299) {
+                "Failed to download model $modelId, status code: ${downloadResponse.statusCode()}, response: ${downloadResponse.body()}"
+            }
+            println("Finish downloading model: $modelId in ${System.currentTimeMillis() - time}ms")
+        } catch (e: Exception) {
+            throw RuntimeException("Error downloading model $modelId: ${e.message}", e)
+        }
+    }
+
+    /**
      * 启动容器(若需要)
      *
      * 保证批量测试时共享一个容器，避免多次开/停容器，浪费大量时间。
@@ -77,16 +245,31 @@ object SpeechesTestContainer {
      *
      * @param registry spring的动态属性注册器，可用来注册或覆盖已注册的属性
      * @param apiKey 可选，API 密钥（如果设置了，所有 API 请求都需要此密钥）
+     * @param sttModel 可选的 STT 模型名称（如 "Systran/faster-whisper-base"），如果指定则使用该模型
+     * @param ttsModel 可选的 TTS 模型名称（如 "speaches-ai/Kokoro-82M-v1.0-ONNX"），如果指定则使用该模型
      * @return 运行中的容器对象
      */
-    fun startIfNeeded(registry: DynamicPropertyRegistry?, apiKey: String? = null): Container {
+    fun startIfNeeded(
+        registry: DynamicPropertyRegistry?,
+        apiKey: String? = null,
+        sttModel: String? = null,
+        ttsModel: String? = null
+    ): Container {
         synchronized(this) {
-            val running = TestContainerKit.isContainerRunning(LABEL)
             val runningContainer = TestContainerKit.startContainerIfNeeded(LABEL, container)
             
-            // 如果指定了 API Key 且容器是新启动的，可以通过环境变量设置
-            // 注意：由于容器已经配置，这里只能记录日志
-            if (!running && apiKey != null) {
+            // 如果指定了 STT 模型，下载它
+            sttModel?.let {
+                downloadModelIfAbsent(it, runningContainer)
+            }
+            
+            // 如果指定了 TTS 模型，下载它
+            ttsModel?.let {
+                downloadModelIfAbsent(it, runningContainer)
+            }
+            
+            // 如果指定了 API Key，记录日志
+            apiKey?.let {
                 println("Note: API Key specified, but container environment is already set. " +
                         "Consider setting API_KEY environment variable before container creation.")
             }
@@ -132,10 +315,20 @@ object SpeechesTestContainer {
     @JvmStatic
     fun main(args: Array<String>?) {
         val apiKey = args?.getOrNull(0)
-        startIfNeeded(null, apiKey)
+        val sttModel = args?.getOrNull(1)
+        val ttsModel = args?.getOrNull(2)
+        
+        startIfNeeded(null, apiKey, sttModel, ttsModel)
+        
         println("Speeches container started on localhost port: $PORT")
         apiKey?.let {
             println("API Key: $it")
+        }
+        sttModel?.let {
+            println("STT Model: $it")
+        }
+        ttsModel?.let {
+            println("TTS Model: $it")
         }
         println("API endpoint: http://localhost:$PORT")
         println("Health check: http://localhost:$PORT/health")

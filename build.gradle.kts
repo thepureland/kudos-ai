@@ -36,10 +36,28 @@ subprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
         testLogging {
+            // 显示标准输出和错误流（实时输出，不缓冲）
             showStandardStreams = true
-            // 可选：更明确地把标准输出/错误也当作事件打印
-            // events("passed", "failed", "skipped", "standardOut", "standardError")
+            // 实时输出日志事件，包括标准输出和错误
+            events(
+                org.gradle.api.tasks.testing.logging.TestLogEvent.PASSED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.FAILED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.SKIPPED,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_OUT,
+                org.gradle.api.tasks.testing.logging.TestLogEvent.STANDARD_ERROR
+            )
+            // 显示异常信息
+            exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+            showStackTraces = true
+            // 显示所有日志级别（包括 INFO 和 DEBUG）
+            showCauses = true
+            // 设置最小粒度，确保实时输出（0 = 输出所有事件）
+            minGranularity = 0
         }
+        // 确保测试输出不被缓冲
+        outputs.upToDateWhen { false }
+        // 禁用输出缓冲，实时显示日志
+        systemProperty("java.util.logging.manager", "java.util.logging.LogManager")
     }
 }
 
