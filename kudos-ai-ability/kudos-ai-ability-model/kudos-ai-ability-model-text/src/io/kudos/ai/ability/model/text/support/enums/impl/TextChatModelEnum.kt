@@ -1,6 +1,6 @@
-package io.kudos.ai.ability.model.chat.support.enums.impl
+package io.kudos.ai.ability.model.text.support.enums.impl
 
-import io.kudos.ai.ability.model.chat.support.enums.ienums.ITextModelEnum
+import io.kudos.ai.ability.model.text.support.enums.ienums.ITextModelEnum
 
 /**
  * 文本模型枚举
@@ -8,7 +8,7 @@ import io.kudos.ai.ability.model.chat.support.enums.ienums.ITextModelEnum
  * @author K
  * @since 1.0.0
  */
-enum class TextModelEnum(
+enum class TextChatModelEnum(
     override val modelName: String,
     override val parameters: Float,
     override val contextSize: Float,

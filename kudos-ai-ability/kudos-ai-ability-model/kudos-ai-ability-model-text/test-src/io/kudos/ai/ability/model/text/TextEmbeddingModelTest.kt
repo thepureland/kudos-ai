@@ -1,6 +1,6 @@
-package io.kudos.ai.ability.model.embedding
+package io.kudos.ai.ability.model.text
 
-import io.kudos.ai.ability.model.embedding.support.enums.impl.EmbeddingModelEnum
+import io.kudos.ai.ability.model.text.support.enums.impl.TextEmbeddingModelEnum
 import io.kudos.ai.test.container.containers.ollama.OllamaMiniTestContainer
 import io.kudos.base.logger.LogFactory
 import io.kudos.test.common.init.EnableKudosTest
@@ -9,10 +9,16 @@ import jakarta.annotation.Resource
 import org.springframework.ai.embedding.EmbeddingModel
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
-import kotlin.test.*
+import kotlin.math.abs
+import kotlin.math.sqrt
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 /**
- * EmbeddingModel测试用例
+ * 文本Embedding模型测试用例
  *
  * 测试内容：
  * - 生成单个文本的 embedding
@@ -29,7 +35,7 @@ import kotlin.test.*
  */
 @EnableKudosTest
 @EnabledIfDockerInstalled
-class EmbeddingModelTest {
+class TextEmbeddingModelTest {
 
     @Resource
     private lateinit var embeddingModel: EmbeddingModel
@@ -54,10 +60,10 @@ class EmbeddingModelTest {
         // Assert
         assertNotNull(embeddingVector, "embedding 向量不应该为 null")
         assertTrue(embeddingVector.isNotEmpty(), "embedding 向量不应该为空")
-        
+
         val dimensions = embeddingModel.dimensions()
         assertEquals(dimensions, embeddingVector.size, "embedding 维度应该与模型维度一致")
-        
+
         log.debug("Embedding dimensions: ${embeddingVector.size}")
         log.debug("First 5 values: ${embeddingVector.take(5).joinToString()}")
     }
@@ -78,14 +84,14 @@ class EmbeddingModelTest {
         // Assert
         assertNotNull(embeddings, "embeddings 不应该为 null")
         assertEquals(texts.size, embeddings.size, "应该返回与输入文本数量相同的 embeddings")
-        
+
         val dimensions = embeddingModel.dimensions()
         embeddings.forEachIndexed { index, embeddingVector ->
             assertNotNull(embeddingVector, "embedding[$index] 不应该为 null")
             assertTrue(embeddingVector.isNotEmpty(), "embedding[$index] 向量不应该为空")
             assertEquals(dimensions, embeddingVector.size, "embedding[$index] 维度应该与模型维度一致")
         }
-        
+
         log.debug("Generated ${embeddings.size} embeddings, each with $dimensions dimensions")
     }
 
@@ -93,7 +99,7 @@ class EmbeddingModelTest {
     fun test_verify_embedding_dimensions() {
         // Arrange
         val text = "测试 embedding 维度"
-        val expectedDimensions = EmbeddingModelEnum.ALL_MINILM.dimension
+        val expectedDimensions = TextEmbeddingModelEnum.ALL_MINILM.dimension
 
         // Act
         val embeddingVector = embeddingModel.embed(text)
@@ -102,7 +108,7 @@ class EmbeddingModelTest {
         // Assert
         assertEquals(expectedDimensions, actualDimensions, "模型维度应该与枚举定义一致")
         assertEquals(expectedDimensions, embeddingVector.size, "embedding 维度应该正确")
-        
+
         log.debug("Expected dimensions: $expectedDimensions, Actual dimensions: $actualDimensions")
     }
 
@@ -116,7 +122,7 @@ class EmbeddingModelTest {
 
         // Assert
         assertTrue(embeddingVector.isNotEmpty(), "embedding 向量不应该为空")
-        
+
         // 验证向量中的值都是数字（Float 类型）
         embeddingVector.forEachIndexed { index: Int, value: Float ->
             assertTrue(
@@ -124,11 +130,11 @@ class EmbeddingModelTest {
                 "embedding[$index] 应该是有效的浮点数，实际值: $value"
             )
         }
-        
+
         // 验证向量不是全零
         val hasNonZero = embeddingVector.any { it != 0.0f }
         assertTrue(hasNonZero, "embedding 向量不应该全为零")
-        
+
         log.debug("Embedding vector format verified: ${embeddingVector.size} dimensions, non-zero values present")
     }
 
@@ -144,7 +150,7 @@ class EmbeddingModelTest {
         assertNotNull(embeddingVector, "即使输入为空，也应该返回响应")
         val dimensions = embeddingModel.dimensions()
         assertEquals(dimensions, embeddingVector.size, "空文本的 embedding 也应该有正确的维度")
-        
+
         log.debug("Empty text embedding generated with ${embeddingVector.size} dimensions")
     }
 
@@ -166,13 +172,13 @@ class EmbeddingModelTest {
 
         // Assert
         assertEquals(texts.size, embeddings.size, "应该返回与输入文本数量相同的 embeddings")
-        
+
         val dimensions = embeddingModel.dimensions()
         embeddings.forEachIndexed { index, embeddingVector ->
             assertEquals(dimensions, embeddingVector.size, "不同长度的文本应该生成相同维度的 embedding")
             assertTrue(embeddingVector.isNotEmpty(), "embedding[$index] 不应该为空")
         }
-        
+
         log.debug("All embeddings have consistent dimensions: $dimensions")
     }
 
@@ -188,23 +194,23 @@ class EmbeddingModelTest {
 
         // Assert
         assertEquals(embedding1.size, embedding2.size, "两次生成的 embedding 应该有相同的维度")
-        
+
         // 验证向量值是否一致（允许小的浮点误差）
         var differences = 0
         embedding1.forEachIndexed { index: Int, value1: Float ->
             val value2 = embedding2[index]
-            if (kotlin.math.abs(value1 - value2) > 0.0001f) {
+            if (abs(value1 - value2) > 0.0001f) {
                 differences++
             }
         }
-        
+
         // 对于确定性模型，embedding 应该完全一致
         // 对于非确定性模型，可能会有小的差异，但大部分值应该相同
         assertTrue(
             differences < embedding1.size * 0.1,
             "相同文本的 embedding 应该基本一致，但发现 $differences 个不同的值（共 ${embedding1.size} 个）"
         )
-        
+
         log.debug("Embedding consistency verified: $differences differences out of ${embedding1.size} values")
     }
 
@@ -216,36 +222,36 @@ class EmbeddingModelTest {
             "Spring AI 是用于 AI 应用开发的框架",
             "Spring AI 框架用于构建 AI 应用"
         )
-        
+
         val differentText = "Python 是一种编程语言"
 
         // Act
         val similarEmbeddings = embeddingModel.embed(similarTexts)
         val differentEmbedding = embeddingModel.embed(differentText)
-        
+
         // 计算相似文本之间的余弦相似度
         fun cosineSimilarity(vec1: FloatArray, vec2: FloatArray): Float {
             require(vec1.size == vec2.size) { "向量维度必须相同" }
             val dotProduct = vec1.zip(vec2).sumOf { (a, b) -> (a * b).toDouble() }.toFloat()
-            val norm1 = kotlin.math.sqrt(vec1.sumOf { (it * it).toDouble() }).toFloat()
-            val norm2 = kotlin.math.sqrt(vec2.sumOf { (it * it).toDouble() }).toFloat()
+            val norm1 = sqrt(vec1.sumOf { (it * it).toDouble() }).toFloat()
+            val norm2 = sqrt(vec2.sumOf { (it * it).toDouble() }).toFloat()
             return if (norm1 == 0f || norm2 == 0f) 0f else dotProduct / (norm1 * norm2)
         }
-        
+
         // 相似文本之间的相似度应该较高
         val similarityBetweenSimilar = cosineSimilarity(similarEmbeddings[0], similarEmbeddings[1])
         assertTrue(
             similarityBetweenSimilar > 0.7f,
             "相似文本的 embedding 应该有较高的相似度，实际值: $similarityBetweenSimilar"
         )
-        
+
         // 不同文本之间的相似度应该较低
         val similarityWithDifferent = cosineSimilarity(similarEmbeddings[0], differentEmbedding)
         assertTrue(
             similarityWithDifferent < similarityBetweenSimilar,
             "不同文本的 embedding 相似度应该低于相似文本，实际值: $similarityWithDifferent vs $similarityBetweenSimilar"
         )
-        
+
         log.debug("Similarity between similar texts: $similarityBetweenSimilar")
         log.debug("Similarity with different text: $similarityWithDifferent")
     }
@@ -255,11 +261,11 @@ class EmbeddingModelTest {
         @DynamicPropertySource
         fun registerProps(registry: DynamicPropertyRegistry) {
             // 使用 ALL_MINILM 模型进行测试（小、快，适合测试/开发）
-            val embeddingModel = EmbeddingModelEnum.ALL_MINILM.modelName
-            
+            val embeddingModel = TextEmbeddingModelEnum.ALL_MINILM.modelName
+
             // 启动 Ollama 容器并拉取模型
             OllamaMiniTestContainer.startIfNeeded(registry, embeddingModel)
-            
+
             // 注册 EmbeddingModel 相关配置
             registry.add("spring.ai.model.embedding") { "ollama" }
             registry.add("spring.ai.ollama.embedding.options.model") { embeddingModel }

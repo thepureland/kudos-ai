@@ -1,6 +1,6 @@
-package io.kudos.ai.ability.model.chat
+package io.kudos.ai.ability.model.text
 
-import io.kudos.ai.ability.model.chat.support.enums.impl.TextModelEnum
+import io.kudos.ai.ability.model.text.support.enums.impl.TextChatModelEnum
 import io.kudos.ai.test.container.containers.ollama.OllamaMiniTestContainer
 import io.kudos.base.logger.LogFactory
 import io.kudos.test.common.init.EnableKudosTest
@@ -25,7 +25,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
 /**
- * 文本模型测试用例
+ * 文本聊天模型测试用例
  *
  * 测试内容：
  * - 基本的文本生成
@@ -39,7 +39,7 @@ import kotlin.test.assertTrue
  */
 @EnableKudosTest
 @EnabledIfDockerInstalled
-class TestTextModel {
+class TextChatModelTest {
 
     @Resource
     private lateinit var chatModel: ChatModel
@@ -172,7 +172,7 @@ class TestTextModel {
         @DynamicPropertySource
         fun registerProps(registry: DynamicPropertyRegistry) {
             // 使用一个较小的模型进行测试（1B 参数模型，内存占用小）
-            val chatModel = TextModelEnum.LLAMA_3_2_3B.modelName
+            val chatModel = TextChatModelEnum.LLAMA_3_2_3B.modelName
             
             // 启动 Ollama 容器并拉取模型
             OllamaMiniTestContainer.startIfNeeded(registry, chatModel)

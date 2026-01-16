@@ -31,7 +31,6 @@
             <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model" />
             <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model/kudos-ai-ability-model-audio" />
             <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model/kudos-ai-ability-model-common" />
-            <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model/kudos-ai-ability-model-embedding" />
             <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model/kudos-ai-ability-model-image" />
             <option value="$PROJECT_DIR$/kudos-ai-ability/kudos-ai-ability-model/kudos-ai-ability-model-text" />
             <option value="$PROJECT_DIR$/kudos-ai-test" />

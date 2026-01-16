@@ -1,5 +1,4 @@
-package io.kudos.ai.ability.model.common
-
+package io.kudos.ai.ability.model.common.support.enums.ienum
 
 /**
  * AI模型接口

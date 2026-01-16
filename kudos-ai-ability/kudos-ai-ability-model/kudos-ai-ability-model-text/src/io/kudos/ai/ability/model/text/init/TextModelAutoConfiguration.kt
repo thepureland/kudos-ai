@@ -1,4 +1,4 @@
-package io.kudos.ai.ability.model.chat.init
+package io.kudos.ai.ability.model.text.init
 
 import io.kudos.context.init.IComponentInitializer
 import org.springframework.context.annotation.Configuration

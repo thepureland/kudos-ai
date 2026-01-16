@@ -43,7 +43,6 @@ include("kudos-ai-ability:kudos-ai-ability-agent:kudos-ai-ability-agent-embabel"
 // model
 include("kudos-ai-ability:kudos-ai-ability-model:kudos-ai-ability-model-common")
 include("kudos-ai-ability:kudos-ai-ability-model:kudos-ai-ability-model-text")
-include("kudos-ai-ability:kudos-ai-ability-model:kudos-ai-ability-model-embedding")
 include("kudos-ai-ability:kudos-ai-ability-model:kudos-ai-ability-model-image")
 include("kudos-ai-ability:kudos-ai-ability-model:kudos-ai-ability-model-audio")
 

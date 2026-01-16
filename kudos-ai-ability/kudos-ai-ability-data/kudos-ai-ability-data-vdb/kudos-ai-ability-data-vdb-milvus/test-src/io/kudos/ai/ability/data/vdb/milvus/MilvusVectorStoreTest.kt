@@ -1,6 +1,6 @@
 package io.kudos.ai.ability.data.vdb.milvus
 
-import io.kudos.ai.ability.model.embedding.support.enums.impl.EmbeddingModelEnum
+import io.kudos.ai.ability.model.text.support.enums.impl.TextEmbeddingModelEnum
 import io.kudos.ai.test.container.containers.MilvusTestContainer
 import io.kudos.ai.test.container.containers.ollama.OllamaMiniTestContainer
 import io.kudos.test.common.init.EnableKudosTest
@@ -284,7 +284,7 @@ class MilvusVectorStoreTest {
         @JvmStatic
         @DynamicPropertySource
         fun registerProps(registry: DynamicPropertyRegistry) {
-            val model = EmbeddingModelEnum.ALL_MINILM
+            val model = TextEmbeddingModelEnum.ALL_MINILM
             registry.add("spring.ai.milvus.embedding-dimension") { model.dimension }
             OllamaMiniTestContainer.startIfNeeded(registry, model.modelName)
             MilvusTestContainer.startIfNeeded(registry)

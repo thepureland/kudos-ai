@@ -1,22 +1,21 @@
-package io.kudos.ai.ability.model.embedding.support.enums.impl
+package io.kudos.ai.ability.model.text.support.enums.impl
 
-import io.kudos.ai.ability.model.embedding.support.enums.ienums.IEmbeddingModelEnum
-
+import io.kudos.ai.ability.model.common.support.enums.ienum.IEmbeddingModel
 
 /**
- * embedding模型枚举
+ * 文本embedding模型枚举
  *
  * @author K
  * @since 1.0.0
  */
-enum class EmbeddingModelEnum(
+enum class TextEmbeddingModelEnum(
     override val modelName: String,
     override val dimension: Int,
     override val parameters: Float,
     override val contextSize: Float,
     override val size: Float,
     override val provider: String
-) : IEmbeddingModelEnum {
+) : IEmbeddingModel {
 
     ALL_MINILM("all-minilm:33m", 384, 0.033F, 0.512F, 0.067F, "SBERT"), // 文本向量嵌入模型 小、快 適合測試/開發
 

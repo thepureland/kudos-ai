@@ -7,6 +7,9 @@ spring:
         options:
           model: llama3.1
           temperature: 0.7
+      embedding:
+        options:
+          model: all-minilm:l6-v2
 
 logging:
   level:
