@@ -41,7 +41,7 @@ import kotlin.test.assertTrue
  */
 @EnableKudosTest
 @EnabledIfDockerInstalled
-class ImageModelTest {
+class ImageChatModelTest {
 
     @Resource
     private lateinit var chatModel: ChatModel
@@ -354,7 +354,7 @@ class ImageModelTest {
         }
     }
 
-    companion object {
+    companion object Companion {
         @JvmStatic
         @DynamicPropertySource
         fun registerProps(registry: DynamicPropertyRegistry) {
