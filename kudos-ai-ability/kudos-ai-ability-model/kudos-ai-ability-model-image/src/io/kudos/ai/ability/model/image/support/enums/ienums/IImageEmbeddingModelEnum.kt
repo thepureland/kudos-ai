@@ -1,10 +1,12 @@
 package io.kudos.ai.ability.model.image.support.enums.ienums
 
+import io.kudos.ai.ability.model.common.support.enums.ienum.IEmbeddingModel
+
 /**
  * 圖片embedding模型枚舉接口
  *
  * @author K
  * @since 1.0.0
  */
-interface IImageEmbeddingModelEnum {
+interface IImageEmbeddingModelEnum : IEmbeddingModel {
 }
