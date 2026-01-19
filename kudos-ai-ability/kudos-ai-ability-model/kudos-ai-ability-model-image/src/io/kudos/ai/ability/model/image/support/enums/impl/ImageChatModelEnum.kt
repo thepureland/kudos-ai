@@ -1,20 +1,20 @@
 package io.kudos.ai.ability.model.image.support.enums.impl
 
-import io.kudos.ai.ability.model.image.support.enums.ienums.IImageModelEnum
+import io.kudos.ai.ability.model.image.support.enums.ienums.IImageChatModelEnum
 
 /**
- * 图片模型枚举
+ * 图片聊天模型枚举
  *
  * @author K
  * @since 1.0.0
  */
-enum class ImageModelEnum(
+enum class ImageChatModelEnum(
     override val modelName: String,
     override val parameters: Float,
     override val contextSize: Float,
     override val size: Float,
     override val provider: String
-) : IImageModelEnum {
+) : IImageChatModelEnum {
 
     // llava
     LLAVA_7B("llava:7b", 7F, 32F, 4.7F, "University of Wisconsin–Madison、Microsoft Research、Columbia University"),

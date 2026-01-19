@@ -1,6 +1,6 @@
 package io.kudos.ai.ability.model.image
 
-import io.kudos.ai.ability.model.image.support.enums.impl.ImageModelEnum
+import io.kudos.ai.ability.model.image.support.enums.impl.ImageChatModelEnum
 import io.kudos.ai.test.container.containers.ollama.OllamaMiniTestContainer
 import io.kudos.base.logger.LogFactory
 import io.kudos.test.common.init.EnableKudosTest
@@ -358,7 +358,7 @@ class ImageModelTest {
         @JvmStatic
         @DynamicPropertySource
         fun registerProps(registry: DynamicPropertyRegistry) {
-            val imageModel = ImageModelEnum.GEMMA3_4B.modelName
+            val imageModel = ImageChatModelEnum.GEMMA3_4B.modelName
             
             // 启动 Ollama 容器并拉取模型
             OllamaMiniTestContainer.startIfNeeded(registry, imageModel)
