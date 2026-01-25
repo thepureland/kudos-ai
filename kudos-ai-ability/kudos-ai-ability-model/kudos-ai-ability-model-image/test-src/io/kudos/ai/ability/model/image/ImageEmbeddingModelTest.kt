@@ -241,7 +241,7 @@ class ImageEmbeddingModelTest {
 
         val dimensions = embeddingModelEnum.dimension
         // 注意：实际返回的维度可能与枚举定义不同，这里只验证维度大于 0
-        assertTrue(embeddingVector.size > 0, "embedding 维度应该大于 0")
+        assertTrue(embeddingVector.isNotEmpty(), "embedding 维度应该大于 0")
 
         log.debug("Embedding dimensions: ${embeddingVector.size}")
         log.debug("First 5 values: ${embeddingVector.take(5).joinToString()}")
@@ -514,4 +514,5 @@ class ImageEmbeddingModelTest {
             }
         }
     }
+
 }
