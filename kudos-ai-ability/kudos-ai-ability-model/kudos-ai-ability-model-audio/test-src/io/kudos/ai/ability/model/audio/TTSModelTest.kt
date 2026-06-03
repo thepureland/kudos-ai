@@ -13,7 +13,6 @@ import org.springframework.ai.audio.tts.TextToSpeechModel
 import org.springframework.ai.audio.tts.TextToSpeechPrompt
 import org.springframework.ai.audio.tts.TextToSpeechResponse
 import org.springframework.ai.openai.OpenAiAudioSpeechOptions
-import org.springframework.ai.openai.api.OpenAiAudioApi
 import org.springframework.test.context.DynamicPropertyRegistry
 import org.springframework.test.context.DynamicPropertySource
 import java.nio.file.Files
@@ -164,7 +163,7 @@ class TTSModelTest {
         val opts = buildSpeechOptions(TTSModelEnum.KOKORO_82M, AudioResponseFormatEnum.WAV)
 
         // Act
-        val audioBytes = textToSpeechModel.call(TextToSpeechPrompt(text, opts)).result.output
+        val audioBytes = textToSpeechModel.call(TextToSpeechPrompt(text, opts)).result!!.output
 
         // Assert
         assertNotNull(audioBytes, "音频数据不应该为 null")
@@ -211,9 +210,9 @@ class TTSModelTest {
         // Assert
         assertNotNull(response, "响应不应该为 null")
         assertNotNull(response.result, "响应结果不应该为 null")
-        assertNotNull(response.result.output, "音频输出不应该为 null")
+        assertNotNull(response.result!!.output, "音频输出不应该为 null")
 
-        val audioBytes = response.result.output
+        val audioBytes = response.result!!.output
         assertTrue(audioBytes.isNotEmpty(), "音频数据不应该为空")
 
         log.debug("Generated audio size: ${audioBytes.size} bytes")
@@ -235,7 +234,7 @@ class TTSModelTest {
 
         // Act
         val audioBytes = try {
-            textToSpeechModel.call(TextToSpeechPrompt(text, opts)).result.output
+            textToSpeechModel.call(TextToSpeechPrompt(text, opts)).result!!.output
         } catch (e: Exception) {
             log.warn("Chinese text TTS failed, this may be due to model or API compatibility: ${e.message}")
             // 如果模型不支持中文或 API 不兼容，跳过此测试
@@ -301,7 +300,7 @@ class TTSModelTest {
         // Act & Assert
         texts.forEachIndexed { index, text ->
             val prompt = TextToSpeechPrompt(text, opts)
-            val audioBytes = textToSpeechModel.call(prompt).result.output
+            val audioBytes = textToSpeechModel.call(prompt).result!!.output
 
             assertNotNull(audioBytes, "文本[$index] 的音频数据不应该为 null")
             assertTrue(audioBytes.isNotEmpty(), "文本[$index] 的音频数据不应该为空")
@@ -472,8 +471,8 @@ class TTSModelTest {
                 if (voiceId != null) {
                     voice(voiceId)
                 }
-                if (EnumKit.isValidEnum(OpenAiAudioApi.SpeechRequest.AudioResponseFormat::class, responseFormat.name)) {
-                    responseFormat(OpenAiAudioApi.SpeechRequest.AudioResponseFormat.valueOf(responseFormat.name))
+                if (EnumKit.isValidEnum(OpenAiAudioSpeechOptions.AudioResponseFormat::class, responseFormat.name)) {
+                    responseFormat(OpenAiAudioSpeechOptions.AudioResponseFormat.valueOf(responseFormat.name))
                 }
             }
             .speed(speed)

@@ -4,18 +4,20 @@
 
 [versions]
 kudos = "1.0.0-SNAPSHOT"
-kotlin = "2.3.0"
-kotlinxDatetime = "0.7.1"
-kotlinxSerializationJSON = "1.10.0-RC"
-kotlinxCoroutines = "1.10.2"
-spring-boot = "4.0.1"
-spring-cloud = "2025.1.0"
-spring-ai = "2.0.0-M2"
-postgres = "42.7.8"
-github-ben-manes-plugin = "0.53.0"
+kotlin = "2.4.0"
+kotlinxDatetime = "0.8.0"
+kotlinxSerializationJSON = "1.11.0"
+kotlinxCoroutines = "1.11.0"
+spring-boot = "4.0.6"
+spring-cloud = "2025.1.1"
+# Spring AI has no stable 2.x release yet; M8 is the latest on the 2.x line the project targets
+# (the only "stable" alternative, 1.1.7, would be a breaking major downgrade).
+spring-ai = "2.0.0-M8"
+postgres = "42.7.11"
+github-ben-manes-plugin = "0.54.0"
 
 # kudos-ai-ability
-embabel-agent = "0.3.1"
+embabel-agent = "0.4.0"
 
 
 [libraries]

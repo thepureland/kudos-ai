@@ -79,7 +79,7 @@ class PgVectorTest {
 
         assertTrue(results.isNotEmpty())
         assertTrue(results.size <= 3)
-        assertTrue(results.first().text.isNotBlank())
+        assertTrue(results.first().text?.isNotBlank() == true)
     }
 
     /** metadata 过滤检索（FilterExpressionBuilder 需要 build()） */
@@ -174,7 +174,7 @@ class PgVectorTest {
                 .build()
         )
 
-        assertTrue(results.any { it.id == id && it.text.contains("tokyo") })
+        assertTrue(results.any { it.id == id && it.text?.contains("tokyo") == true })
     }
 
     /** 批量写入 + metadata 过滤 */

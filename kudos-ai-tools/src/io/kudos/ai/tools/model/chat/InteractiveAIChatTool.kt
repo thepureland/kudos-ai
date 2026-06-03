@@ -98,7 +98,7 @@ object InteractiveAIChatTool {
                 // 调用 ChatModel
                 print("AI: ")
                 val response: ChatResponse = chatModel.call(prompt)
-                val content = response.result.output.text!!
+                val content = response.result?.output?.text ?: ""
                 println(content)
                 println()
 
