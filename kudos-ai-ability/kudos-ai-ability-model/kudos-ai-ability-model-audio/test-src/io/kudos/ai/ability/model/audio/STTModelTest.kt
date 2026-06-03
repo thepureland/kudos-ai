@@ -11,7 +11,7 @@ import org.springframework.ai.audio.transcription.AudioTranscriptionPrompt
 import org.springframework.ai.audio.transcription.AudioTranscriptionResponse
 import org.springframework.ai.audio.transcription.TranscriptionModel
 import org.springframework.ai.openai.OpenAiAudioTranscriptionOptions
-import org.springframework.ai.openai.api.OpenAiAudioApi
+import com.openai.models.audio.AudioResponseFormat
 import org.springframework.core.io.ClassPathResource
 import org.springframework.core.io.FileSystemResource
 import org.springframework.test.context.DynamicPropertyRegistry
@@ -113,7 +113,7 @@ class STTModelTest {
             return
         }
         
-        val text = response.result.output
+        val text = response.result!!.output
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
@@ -151,9 +151,9 @@ class STTModelTest {
         // Assert
         assertNotNull(response, "响应不应该为 null")
         assertNotNull(response.result, "响应结果不应该为 null")
-        assertNotNull(response.result.output, "转录文本不应该为 null")
+        assertNotNull(response.result!!.output, "转录文本不应该为 null")
         
-        val text = response.result.output
+        val text = response.result!!.output
         // 静音音频文件的转录结果应该是空字符串或很短的误识别内容
         // 注意：语音识别模型可能对静音音频产生误识别，这是模型的局限性
         // 大型模型（如 large-v3）可能产生较长的误识别文本
@@ -184,7 +184,7 @@ class STTModelTest {
             val prompt = AudioTranscriptionPrompt(emptyResource, opts)
             try {
                 val response = transcriptionModel.call(prompt)
-                val text = response.result.output
+                val text = response.result!!.output
                 // 如果返回空字符串，也是可以接受的
                 assertTrue(text.isEmpty(), "空音频应该返回空字符串")
                 log.debug("空音频正确返回空字符串")
@@ -229,7 +229,7 @@ class STTModelTest {
                 return@forEachIndexed
             }
             
-            val text = response.result.output
+            val text = response.result!!.output
             
             // Assert
             assertNotNull(response, "音频文件[$index] 的响应不应该为 null")
@@ -308,7 +308,7 @@ class STTModelTest {
             return
         }
         
-        val text = response.result.output
+        val text = response.result!!.output
 
         // Assert
         assertNotNull(response, "大音频文件的响应不应该为 null")
@@ -352,8 +352,8 @@ class STTModelTest {
             return
         }
         
-        val text1 = response1.result.output
-        val text2 = response2.result.output
+        val text1 = response1.result!!.output
+        val text2 = response2.result!!.output
 
         // Assert
         assertNotNull(text1, "第一次转录结果不应该为 null")
@@ -411,9 +411,9 @@ class STTModelTest {
         // Assert
         assertNotNull(response, "响应不应该为 null")
         assertNotNull(response.result, "响应结果不应该为 null")
-        assertNotNull(response.result.output, "转录文本不应该为 null")
+        assertNotNull(response.result!!.output, "转录文本不应该为 null")
         
-        val transcribedText = response.result.output.trim()
+        val transcribedText = response.result!!.output.trim()
         assertTrue(transcribedText.isNotEmpty(), "转录文本不应该为空，实际结果: '$transcribedText'")
         
         log.info("转录结果: $transcribedText")
@@ -462,7 +462,7 @@ class STTModelTest {
         language: String? = null,
         prompt: String? = null,
         temperature: Float = 0F,
-        responseFormat: OpenAiAudioApi.TranscriptResponseFormat = OpenAiAudioApi.TranscriptResponseFormat.TEXT
+        responseFormat: AudioResponseFormat = AudioResponseFormat.TEXT
     ): AudioTranscriptionOptions {
         return OpenAiAudioTranscriptionOptions.builder()
             .model(sttModelEnum.modelName)

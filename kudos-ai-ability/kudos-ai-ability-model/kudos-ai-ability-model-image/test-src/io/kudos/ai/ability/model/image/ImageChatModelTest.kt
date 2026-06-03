@@ -101,7 +101,7 @@ class ImageChatModelTest {
         // Assert
         assertNotNull(response, "响应不应该为 null")
         assertNotNull(response.result, "响应结果不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -139,7 +139,7 @@ class ImageChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -177,7 +177,7 @@ class ImageChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -210,7 +210,7 @@ class ImageChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -243,7 +243,7 @@ class ImageChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -276,7 +276,7 @@ class ImageChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -309,7 +309,7 @@ class ImageChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -345,7 +345,7 @@ class ImageChatModelTest {
             val response: ChatResponse = chatModel.call(prompt)
 
             assertNotNull(response, "响应不应该为 null")
-            val content = response.result.output.text
+            val content = response.result!!.output.text!!
             log.debug("A: $content")
             assertTrue(
                 content.isNotBlank(),

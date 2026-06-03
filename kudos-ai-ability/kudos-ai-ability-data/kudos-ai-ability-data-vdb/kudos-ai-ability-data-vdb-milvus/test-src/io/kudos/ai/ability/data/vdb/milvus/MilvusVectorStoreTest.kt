@@ -72,7 +72,7 @@ class MilvusVectorStoreTest {
         )
 
         assertTrue(results.any { it.id == "doc-1" })
-        assertTrue(results.first().text.isNotBlank())
+        assertTrue(results.first().text?.isNotBlank() == true)
     }
 
     @Test
@@ -221,7 +221,7 @@ class MilvusVectorStoreTest {
                 .build()
         )
 
-        assertTrue(results.any { it.id == id && it.text.contains("Tokyo tower") })
+        assertTrue(results.any { it.id == id && it.text?.contains("Tokyo tower") == true })
     }
 
     @Test

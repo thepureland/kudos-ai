@@ -65,7 +65,7 @@ class TextChatModelTest {
         // Assert
         assertNotNull(response, "响应不应该为 null")
         assertNotNull(response.result, "响应结果不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -94,7 +94,7 @@ class TextChatModelTest {
 
         // Assert
         assertNotNull(response, "响应不应该为 null")
-        val content = response.result.output.text
+        val content = response.result!!.output.text!!
         log.debug("A: $content")
         assertTrue(
             content.isNotBlank(),
@@ -125,7 +125,7 @@ class TextChatModelTest {
             val response: ChatResponse = chatModel.call(prompt)
 
             assertNotNull(response, "响应不应该为 null")
-            val content = response.result.output.text
+            val content = response.result!!.output.text!!
             log.debug("A: $content")
             assertTrue(
                 content.isNotBlank(),
@@ -160,7 +160,7 @@ class TextChatModelTest {
 
         // Act
         val response: ChatResponse = chatModel.call(prompt)
-        log.debug("A: ${response.result.output.text}")
+        log.debug("A: ${response.result!!.output.text!!}")
 
         // Assert
         assertNotNull(response, "即使输入为空，也应该返回响应")
